@@ -1,10 +1,13 @@
 import React from "react";
+import Thinking from "./components/Thinking";
 
 function App() {
+  const messagesEndRef = React.useRef();
   const [messge, setMessage] = React.useState(null);
   const [userInput, setUserInput] = React.useState('');
   const [previousChats, setPreviousChats] = React.useState([]);
   const [currentTitle, setCurrentTitle] = React.useState('');
+  const [thinking, setThinking] = React.useState(false);
 
 
   const getMessages = async () => {
@@ -17,6 +20,7 @@ function App() {
         "Content-Type": "application/json"
       }
     }
+    setThinking(true);
     try {
       const response = await fetch('http://localhost:8001/completions', options);
       const data = await response.json();
@@ -25,6 +29,7 @@ function App() {
     } catch (err) {
       console.log(err);
     }
+    setThinking(false);
   }
 
   const createNewChat = () => {
@@ -48,12 +53,20 @@ function App() {
     if (currentTitle && userInput && messge) {
       setPreviousChats(preState => (
         [...preState,
-          { title: currentTitle, role: 'user', content: userInput },
-          { title: currentTitle, role: messge.role, content: messge.content }
+        {title: currentTitle, role: 'user', content: userInput},
+        {title: currentTitle, role: messge.role, content: messge.content}
         ]
-      ))
+      ));
     }
-  }, [messge, currentTitle])
+  }, [messge, currentTitle]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messge, thinking]);
 
   previousChats && console.log(previousChats);
 
@@ -80,6 +93,8 @@ function App() {
               <p className="message">{ chatMesage.content }</p>
             </li>
           ))}
+          {thinking && <Thinking />}
+          <span ref={messagesEndRef}></span>
         </ul>
         <div className="bottom-section">
           <div className="input-container">

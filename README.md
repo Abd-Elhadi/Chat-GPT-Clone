@@ -1,4 +1,4 @@
-# ChatGPT clone with DALL.E image generation model
+# ChatGPT clone
 
 ## install
 
